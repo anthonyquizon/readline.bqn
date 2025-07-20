@@ -9,8 +9,10 @@ Cmd←{f‿ch 𝕊 ·:
   F ch
 }
 
-_Repl⇐{F _𝕣 ·:
+Repl⇐{𝕊 opt:
   •term.RawMode 1
+  •term.OutRaw •ToUTF8 opt.prompt
+
   ch←⟨⟩ ⋄ ps←0
 
   # add 𝕩 into ch at ps position with 𝕨 deletions
@@ -19,15 +21,15 @@ _Repl⇐{F _𝕣 ·:
   # map of inputs to ⟨ch, ps, eff⟩ 
   # ch: new character list, ps: position, eff: side effect function⟩
   Map←{
-    𝕩:𝕩≡e∾"[D"             ? ⟨ch,            0⌈ps-1,          {𝕩}     ⟩
-  ; 𝕩:𝕩≡e∾"[C"             ? ⟨ch,            (≠ch)⌊ps+1,      {𝕩}     ⟩
-  ; 𝕩:𝕩≡≍@+10              ? ⟨⟨⟩,            0,               f‿ch⊸Cmd⟩ # enter
-  ; 𝕩:𝕩≡≍@+127             ? ⟨1 Patch "",    0⌈ps-1,          {𝕩}     ⟩ # backspace
-  ; 𝕩:𝕩≡≍@+21              ? ⟨⟨⟩,            0,               {𝕩}     ⟩ # ctrl+u
-  ; 𝕩:0=≠ch                ? ⟨𝕩,             1,               {𝕩}     ⟩
+    𝕩:𝕩≡e∾"[D"             ? ⟨ch,            0⌈ps-1,          {𝕩}              ⟩
+  ; 𝕩:𝕩≡e∾"[C"             ? ⟨ch,            (≠ch)⌊ps+1,      {𝕩}              ⟩
+  ; 𝕩:𝕩≡≍@+10              ? ⟨⟨⟩,            0,               ⟨opt.Cmd,ch⟩⊸Cmd⟩ # enter
+  ; 𝕩:𝕩≡≍@+127             ? ⟨1 Patch "",    0⌈ps-1,          {𝕩}              ⟩ # backspace
+  ; 𝕩:𝕩≡≍@+21              ? ⟨⟨⟩,            0,               {𝕩}              ⟩ # ctrl+u
+  ; 𝕩:0=≠ch                ? ⟨𝕩,             1,               {𝕩}              ⟩
   ; 𝕩:'\'=ch(⊣⊑˜0⌈≠⊸⌊)ps-1 ? z←uni/˜asc∊𝕩
-                             ⟨ch0←1 Patch z, (≠z)+ps-1,       {𝕩}     ⟩
-  ; 𝕩:                       ⟨ch0←0 Patch 𝕩, ps+1,            {𝕩}     ⟩ 
+                             ⟨ch0←1 Patch z, (≠z)+ps-1,       {𝕩}              ⟩
+  ; 𝕩:                       ⟨ch0←0 Patch 𝕩, ps+1,            {𝕩}              ⟩ 
   }
 
   # if e consume chars until letter (ANSI format for keypresses)
@@ -44,8 +46,9 @@ _Repl⇐{F _𝕣 ·:
     Eff @
 
     •term.OutRaw clear # clear line and set to start of line
+    •term.OutRaw •ToUTF8 opt.prompt
     •term.OutRaw •ToUTF8 ch
-    •term.OutRaw e∾"["∾(•Fmt ps+1)∾"G"
+    •term.OutRaw e∾"["∾(•Fmt (≠opt.prompt)+ps+1)∾"G"
     •term.Flush@
   }•_while_ 1 @
 }

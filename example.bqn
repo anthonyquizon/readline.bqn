@@ -3,6 +3,10 @@
 
 r←•ReBQN {repl⇐"loose"}
 
-{ •Out 𝕩
-  •Out ("  "⊸∾∘•Fmt∘R)⎊•CurrentError 𝕩 
-} _Repl @
+Repl {
+  prompt⇐"    " 
+  Cmd⇐{ 
+    •Out prompt∾𝕩
+    •Show R⎊•CurrentError 𝕩 
+  }
+}
