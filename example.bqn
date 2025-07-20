@@ -1,5 +1,5 @@
 
-⟨_Repl⟩←•Import "readline.bqn"
+⟨Repl⟩←•Import "readline.bqn"
 
 r←•ReBQN {repl⇐"loose"}
 
