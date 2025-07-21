@@ -4,16 +4,13 @@ uni←"˜˘¨⁼⌜´˝7∞¯•÷×¬⎉⚇⍟◶⊘⎊⍎⍕⟨⟩√⋆⌽�
 
 e←@+27 ⋄ clear←e∾"[2K"∾e∾"[0G"
 
-Cmd←{f‿ch 𝕊 ·:
-  •term.OutRaw clear
-  F ch
-}
-
 Repl⇐{𝕊 opt:
   •term.RawMode 1
   •term.OutRaw •ToUTF8 opt.prompt
 
   ch←⟨⟩ ⋄ ps←0
+
+  Cmd←{ch 𝕊 ·: •term.OutRaw clear⋄opt.Cmd ch}
 
   # add 𝕩 into ch at ps position with 𝕨 deletions
   Patch←{0=≠ch?⟨⟩;∾(∾⟜𝕩(-𝕨)⊸↓)¨⌾(1⊸↑) ps(⊢⊔˜≤⟜(↕≠))ch} 
@@ -21,15 +18,15 @@ Repl⇐{𝕊 opt:
   # map of inputs to ⟨ch, ps, eff⟩ 
   # ch: new character list, ps: position, eff: side effect function⟩
   Map←{
-    𝕩:𝕩≡e∾"[D"             ? ⟨ch,            0⌈ps-1,          {𝕩}              ⟩
-  ; 𝕩:𝕩≡e∾"[C"             ? ⟨ch,            (≠ch)⌊ps+1,      {𝕩}              ⟩
-  ; 𝕩:𝕩≡≍@+10              ? ⟨⟨⟩,            0,               ⟨opt.Cmd,ch⟩⊸Cmd⟩ # enter
-  ; 𝕩:𝕩≡≍@+127             ? ⟨1 Patch "",    0⌈ps-1,          {𝕩}              ⟩ # backspace
-  ; 𝕩:𝕩≡≍@+21              ? ⟨⟨⟩,            0,               {𝕩}              ⟩ # ctrl+u
-  ; 𝕩:0=≠ch                ? ⟨𝕩,             1,               {𝕩}              ⟩
+    𝕩:𝕩≡e∾"[D"             ? ⟨ch,            0⌈ps-1,          {𝕩}   ⟩
+  ; 𝕩:𝕩≡e∾"[C"             ? ⟨ch,            (≠ch)⌊ps+1,      {𝕩}   ⟩
+  ; 𝕩:𝕩≡≍@+10              ? ⟨⟨⟩,            0,               ch⊸Cmd⟩ # enter
+  ; 𝕩:𝕩≡≍@+127             ? ⟨1 Patch "",    0⌈ps-1,          {𝕩}   ⟩ # backspace
+  ; 𝕩:𝕩≡≍@+21              ? ⟨⟨⟩,            0,               {𝕩}   ⟩ # ctrl+u
+  ; 𝕩:0=≠ch                ? ⟨𝕩,             1,               {𝕩}   ⟩
   ; 𝕩:'\'=ch(⊣⊑˜0⌈≠⊸⌊)ps-1 ? z←uni/˜asc∊𝕩
-                             ⟨ch0←1 Patch z, (≠z)+ps-1,       {𝕩}              ⟩
-  ; 𝕩:                       ⟨ch0←0 Patch 𝕩, ps+1,            {𝕩}              ⟩ 
+                             ⟨ch0←1 Patch z, (≠z)+ps-1,       {𝕩}   ⟩
+  ; 𝕩:                       ⟨ch0←0 Patch 𝕩, ps+1,            {𝕩}   ⟩ 
   }
 
   # if e consume chars until letter (ANSI format for keypresses)
